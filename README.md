@@ -1,13 +1,88 @@
 # Scope-Assistant
-Oscilloscope assistant with RPi using Plotly Dash
 
-Components:\n
-*HARDWARE*\n
-1 x Raspberry Pi 3B+
-1 x Rigol DS1104Z Oscilloscope
-1 x USB A to USB B cable (data cable for RPi > oscilloscope)
-1 x USB A to micro USB B (power cable for RPi, feeds off front USB port)
-1-4 Oscilloscope leads 
+The Scope-Assistant is a RPi that communicates with the oscilloscope and serves a webpage with a Plotly Dash page.
 
-*SOFTWARE*
-RPi
+## Getting Started
+
+Set-up the RPi per the instructions in 'Guide (1).docx'
+
+### Prerequisites
+
+RPi (3B+ was used in this project)
+Oscilloscope (Rigol DS1104Z was used in this project)
+
+```
+Give examples
+```
+
+### Installing
+
+A step by step series of examples that tell you how to get a development env running
+
+Say what the step will be
+
+```
+Give the example
+```
+
+And repeat
+
+```
+until finished
+```
+
+End with an example of getting some data out of the system or using it for a little demo
+
+## Running the tests
+
+Explain how to run the automated tests for this system
+
+### Break down into end to end tests
+
+Explain what these tests test and why
+
+```
+Give an example
+```
+
+### And coding style tests
+
+Explain what these tests test and why
+
+```
+Give an example
+```
+
+## Deployment
+
+Add additional notes about how to deploy this on a live system
+
+## Built With
+
+* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
+* [Maven](https://maven.apache.org/) - Dependency Management
+* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+
+## Contributing
+
+Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+
+## Authors
+
+* **Shane Mattner** - *Initial work* - (https://github.com/shanemmattner)
+
+See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgments
+
+* Hat tip to anyone whose code was used
+* Inspiration
+* etc
