@@ -14,7 +14,7 @@ import visa
 from os import system
 import plotly.graph_objs as go
 
-chdir("/home/pi/dashboard")
+chdir("/home/pi/dashboard/Scope-Assistant")
 #import Rite-Hite logo and encode as base 64
 scope_pic = base64.b64encode(open('ds1104z.png', 'rb').read()) 
 
@@ -123,8 +123,11 @@ def button1(clicks, CH):
     
     for i in CH:
         data['CH' + str(i)] = scope.channel_data_return(int(i))
-    data['Time']=np.linspace(0,(len(data))/int(scope.sampleRate), len(data))
-    scope.scope.close()
+    #now we have all the channel data, let's generate an x-axis
+    pts = len(data)
+    srate = scope.acquire_srate_get()
+    data['Time']=np.linspace(0,(pts/srate), pts)
+    #the 'Time' column is at the end of the dataframe, let's move it to the first column
     cols = data.columns.tolist()
     cols = cols[-1:] + cols[:-1]
     data = data[cols]

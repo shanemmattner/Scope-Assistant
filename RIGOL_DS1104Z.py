@@ -19,9 +19,6 @@ class RIGOL_DS1104Z():
     def __init__(self,scopeName='',scope='', memDepth = 600000, sampleRate = 1, numSamples = 0):
         self.scopeName = scopeName  
         self.scope = scope
-        self.memDepth = memDepth
-        self.sampleRate = sampleRate
-        self.numSamples = numSamples
         
     def get_USB_port(self):
         #instantiate ResourceManager from pyVISA
@@ -97,8 +94,7 @@ class RIGOL_DS1104Z():
         self.scope.write(':ACQ:TYPE '+str(mode))
         
     def acquire_srate_get(self):
-        self.sampleRate = float(self.scope.query(':ACQ:SRATe?'))
-        return self.sampleRate
+        return float(self.scope.query(':ACQ:SRATe?'))
 
 
     '''CALIBRATE COMMANDS'''
