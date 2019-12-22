@@ -116,6 +116,7 @@ def render_content(tab):
 #start the signal plotter script
 def button1(clicks, CH, mDepth):
     #prevent the scope from triggering upon entering application before button is clicked
+    #also guard against users trying to get data with no channels selected
     if (clicks == 0) or (len(CH) == 0):
         return
     system('clear')
@@ -129,9 +130,10 @@ def button1(clicks, CH, mDepth):
     else:
         depth = memDepthImport.iloc[mDepth]['threeFourChannels']
         print("MEMORY DEPTH: " + str(depth))
+
     scope=rg.RIGOL_DS1104Z()
     data = pd.DataFrame()
-    scope.initialize_scope(channel = CH, memDepth = mDepth)
+    scope.initialize_scope(channel = CH, memDepth = depth)
     print("Channels Initialized")
     print("Triggering Single")
     print(scope.wave_source_get())
@@ -139,10 +141,10 @@ def button1(clicks, CH, mDepth):
     scope.single()
     sleep(1)
     #wait until the scope is done with it's trigger
-    scope_status = scope.scope.query(":TRIG:STAT?")
+    scope_status = scope.trigger_status()
     while "STOP" not in scope_status:
         sleep(0.3)
-        scope_status = scope.scope.query(":TRIG:STAT?")
+        scope_status = scope.trigger_status()
     print("Trigger event complete\n")
     
     

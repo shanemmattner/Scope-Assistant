@@ -38,18 +38,33 @@ class RIGOL_DS1104Z():
         self.wave_format_set(format_type)
         #set the mode
         self.wave_mode_set(mode)
-        #to adjust the # of points recorded (depth) we need to have the scope in
+        #we need to initialize the channels before setting the memory depth
+        #otherwise if someone has on all 4 channels, but we want to sample 1 channel
+        #very high, the scope will limit our memory depth because it thinks we're using 
+        # more than 1 channel
+        self.initialize_channel(channel)
+       #to adjust the # of points recorded (depth) we need to have the scope in
         #   Run mode and then change the depth
         self.run()
-        #set the memory depth
+       #set the memory depth
         self.acquire_depth_set(memDepth)
         self.stop()
-        #set the termination
+       #set the termination
         self.scope.read_termination='\n'
-        self.initialize_channel(channel)
-    
-    def initialize_channel(self,channel = 1):
-        self.channel_display_on(channel)
+
+
+    def initialize_channel(self,channel = [1]):
+        analog_channels = [1,2,3,4] #make a list of all the analog channels
+        print("type is: " + str(type(channel[0])))
+        print("2nd type is: " + str(type(analog_channels[0])))
+        for i in channel:
+            print('turning on channel ' + str(i))
+            self.channel_display_on(i)
+            if int(i) in analog_channels:
+                analog_channels.remove(int(i)) #remove the active analog channel form the list
+        input("analog channels to turn off:" + str(analog_channels))
+        for i in analog_channels:
+            self.channel_display_off(i)
     
     def deinitialize_channel(self, channel):
         self.channel_display_off()
@@ -71,21 +86,19 @@ class RIGOL_DS1104Z():
     def single(self):
         self.scope.write(':SING')
     
-    def Tforce(self):
-        self.scope.write(':TFOR')
+    
+    
 
     '''ACQUIRE COMMANDS '''
     def acquire_averages_get(self):
         return self.scope.query(':ACQ:AVER?')
-        
-    def acquire_averages_set(self,num):
-        self.scope.write(':ACQ:AVER '+str(num))
     
     def acquire_depth_get(self):
         return self.scope.query(':ACQ:MDEP?')
         
     def acquire_depth_set(self,num):
-        self.scope.write(':ACQ:MDEP '+ str(num))
+        input("setting the mdepth to: " + str(num))
+        self.scope.write(':ACQ:MDEP '+ str(int(num)))
         
     def acquire_type_get(self):
         return self.scope.query(':ACQ:TYPE?')
@@ -97,21 +110,7 @@ class RIGOL_DS1104Z():
         return float(self.scope.query(':ACQ:SRATe?'))
 
 
-    '''CALIBRATE COMMANDS'''
-    #start calibration
-    def start_cal(self):
-        self.scope.write(':CAL:STAR')
-    #stop calibration
-    def quit_cal(self):
-        self.scope.write(':CAL:QUIT')
         
-    '''CHANNEL COMMANDS'''
-    def channel_BWlimit_get(self,channel):
-        return self.scope.write(':CHAN' + channel + ':BWL?')
-   
-    def channel_BWlimit_set(self,channel,lim):
-        return self.scope.write(':CHAN' + channel + ':BWL ' + str(lim) + 'M')
-
     def channel_coupling_get(self,channel):
         return self.scope.write(':CHAN' + channel + ':COUP?')
 
@@ -135,7 +134,8 @@ class RIGOL_DS1104Z():
     def chan_scale_get(self, channel):
         return self.scope.query(':CHAN'+channel+':SCAL?')
         
-    
+    def trigger_status(self):
+        return self.scope.query(':TRIG:STAT?')
     '''DISPLAY COMMANDS'''
     #get the channel scale
     def display_data_get(self):
