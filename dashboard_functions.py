@@ -21,9 +21,8 @@ def parse_contents(df, sample_rate):
         ])
     fig =  go.Figure(data=traces[:])
     fig.update_layout(
-            title = 'Scope Traces',
             xaxis_title = "Time (s)",
-            yaxis_title = "Volts"
+            yaxis_title = "Volts (V)"
             )
     return html.Div([
         dcc.Graph(figure = fig)

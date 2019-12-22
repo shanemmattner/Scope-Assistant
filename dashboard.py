@@ -73,7 +73,7 @@ def render_content(tab):
         child1 = html.Div([
                         html.H3('Channels'),
                         checklist1,
-                        html.H3('Memory Depth'),
+                        html.H3('Sampling Rate'),
                         radioList1,
                         btn1],
                     style = {'overflow':'auto','height':'80vh'})
@@ -121,12 +121,20 @@ def button1(clicks, CH, mDepth):
 @app.callback(Output('memDepthList','options'),
             [Input('oscillChannelList','value')])
 def memDepthOptions(CH):
+    scope = rg.RIGOL_DS1104Z()
+    scope.get_USB_port()
+    time_scale = float(scope.time_scale_get())
+    divisions = 12 #there are 12 divisions on the Rigol DS1104Z screen
+    total_time = time_scale * divisions
+    #get the time scale
     if len(CH) <= 1:
-        return (dbf.create_options(memDepthImport['oneChannel']))
+        sRateCol = (memDepthImport['oneChannel'] / total_time).apply(lambda x : "{:,}".format(x))# format the sampling rate with commas
+        return (dbf.create_options(sRateCol))
     elif len(CH) == 2:
-        return (dbf.create_options(memDepthImport['twoChannels']))
+        sRateCol = (memDepthImport['twoChannels'] / total_time).apply(lambda x : "{:,}".format(x))
+        return (dbf.create_options(sRateCol))
     else:
-        return (dbf.create_options(memDepthImport['threeFourChannels']))
-
+        sRateCol = (memDepthImport['threeFourChannels'] / total_time).apply(lambda x : "{:,}".format(x))
+        return (dbf.create_options(sRateCol))
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)

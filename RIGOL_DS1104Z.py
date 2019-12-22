@@ -122,14 +122,13 @@ class RIGOL_DS1104Z():
     def channel_display_off(self,channel):
         self.scope.write(':CHAN'+str(channel)+':DISP OFF') 
 
-    #set the channel scale
-    def chan_scale_set(self,channel):
-        self.scope.write(':CHAN1:SCAL '+str(channel))
-
     #get the channel scale
     def chan_scale_get(self, channel):
         return self.scope.query(':CHAN'+channel+':SCAL?')
-        
+
+    def time_scale_get(self):
+        return self.scope.query(':TIM:MAIN:SCALE?')
+
     def trigger_status(self):
         return self.scope.query(':TRIG:STAT?')
     '''DISPLAY COMMANDS'''
