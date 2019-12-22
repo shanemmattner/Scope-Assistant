@@ -1,0 +1,5 @@
+-Switch from talking ASCii to talking binary (or word), this will allow us to querry much much more data at one time
+-Make selector buttons (entry fields?) for the Samplings rate and number of data points stored in the memory buffer
+-Implement the javascript needed to get feedback when users are interacting with the plots
+  -https://dash.plot.ly/interactive-graphing
+  -looks like we can use xaxis.range[0-1] and yaxis.range[0-1] built in Python data
