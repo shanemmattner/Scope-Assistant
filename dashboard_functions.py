@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objs as go
 import dash_core_components as dcc
 import dash_html_components as html
-
+import RIGOL_DS1104Z as rg
 
 def parse_contents(df, sample_rate):
     try:
@@ -22,3 +22,14 @@ def parse_contents(df, sample_rate):
     return html.Div([
         dcc.Graph(figure = go.Figure(data=traces[:]))
     ])
+
+def calc_query_req(frmt, mDepth):
+        if frmt == 'BYTE':
+            maxReadsPerQuery = 250000
+        elif frmt == 'WORD':
+            maxReadsPerQuery = 125000
+        elif frmt == 'ASC':
+            maxReadsPerQuery = 15625
+        else:
+            maxReadsPerQuery = 15625
+        return (int(int(mDepth) /int( maxReadsPerQuery)) + 1), maxReadsPerQuery

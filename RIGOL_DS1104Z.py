@@ -2,6 +2,7 @@ import visa as vs
 import sys
 from time import sleep
 import numpy as np
+import dashboard_functions as dbf
 """
 {} - optional parameters
  | - seperate multiple parameters
@@ -162,7 +163,7 @@ class RIGOL_DS1104Z():
     def wave_stop_point(self,num):
         self.scope.write(':WAV:STOP '+str(num))
         
-    def wave_data_get(self, start=1, stop= 125000, decimals=2):
+    def single_channel_data(self, start=1, stop= 125000, decimals=2):
         #set the start point
         self.wave_start_point(start)
         #set the stop point
@@ -180,27 +181,15 @@ class RIGOL_DS1104Z():
         self.wave_source_set(channel)
         print("Getting data from " + str(self.wave_source_get()))
         memDepth = self.acquire_depth_get()
-        #we can only querry for an amount of data depending on the format of the transmission
-        #So we need to query for that format, then query for data accordingly
-        querryFormat = self.wave_format_get()
-        print("The querry format is "+str(querryFormat))
-        if querryFormat == 'BYTE':
-            maxReadPerQuerry = 250000
-        elif querryFormat == 'WORD':
-            maxReadPerQuerry = 125000
-        elif querryFormat == 'ASC':
-            maxReadPerQuerry = 15625
-        else:
-            maxReadPerQuerry = 15625
-        maxReadPerQuerry = 15625
-        numQueriesNeeded = int(int(memDepth) /int( maxReadPerQuerry)) + 1
+        queryFormat = self.wave_format_get()
+        numQueriesNeeded, maxReadsPerQuery = dbf.calc_query_req(str(queryFormat), memDepth)
         channelData = np.empty([1])
         for i in range(numQueriesNeeded):
-            start = (i * maxReadPerQuerry) + 1
-            stop = start + maxReadPerQuerry
+            start = (i * maxReadsPerQuery) + 1
+            stop = start + maxReadsPerQuery
             if stop > int(self.acquire_depth_get()):
                 stop = int(self.acquire_depth_get())
-            newData = self.wave_data_get(start = start, stop = stop)
+            newData = self.single_channel_data(start = start, stop = stop)
             channelData = np.concatenate((channelData,newData), axis = 0)
         print("Data retrieved from " + str(self.wave_source_get()))
         return channelData
