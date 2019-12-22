@@ -88,7 +88,6 @@ def render_content(tab):
               [State('oscillChannelList', 'value'), State('memDepthList', 'value')])
 #start the signal plotter script
 def button1(clicks, CH, mDepth):
-    input("mDepth type is: " + str(type(mDepth)))
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
     if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == 'NoneType'):
