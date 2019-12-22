@@ -55,14 +55,10 @@ class RIGOL_DS1104Z():
 
     def initialize_channel(self,channel = [1]):
         analog_channels = [1,2,3,4] #make a list of all the analog channels
-        print("type is: " + str(type(channel[0])))
-        print("2nd type is: " + str(type(analog_channels[0])))
         for i in channel:
-            print('turning on channel ' + str(i))
             self.channel_display_on(i)
             if int(i) in analog_channels:
                 analog_channels.remove(int(i)) #remove the active analog channel form the list
-        input("analog channels to turn off:" + str(analog_channels))
         for i in analog_channels:
             self.channel_display_off(i)
     
@@ -97,7 +93,6 @@ class RIGOL_DS1104Z():
         return self.scope.query(':ACQ:MDEP?')
         
     def acquire_depth_set(self,num):
-        input("setting the mdepth to: " + str(num))
         self.scope.write(':ACQ:MDEP '+ str(int(num)))
         
     def acquire_type_get(self):

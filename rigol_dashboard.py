@@ -4,15 +4,15 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
-import pandas as pd
 import numpy as np
+from os import chdir, system
+import pandas as pd
+#import plotly.graph_objs as go
 from time import sleep
-#user created imports
-import RIGOL_DS1104Z as rg
-from os import chdir
 import visa
-from os import system
-import plotly.graph_objs as go
+#user created imports
+import dashboard_functions as dbf
+import RIGOL_DS1104Z as rg
 
 chdir("/home/pi/dashboard/Scope-Assistant")
 #import Rite-Hite logo and encode as base 64
@@ -24,24 +24,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 #create the server
 server = app.server
 app.config.suppress_callback_exceptions = True #prevents errors if we reference components before they're defined
-
-def parse_contents(df):
-    try:
-        xAxis = df['Time']
-        df.drop(['Time'], axis = 1, inplace = True)
-        #create empty list for putting traces in
-        traces = []
-        for col in df:
-            #TODO: add to different axis depending on the highest value of the signals
-            traces.append(go.Scattergl(x=xAxis,y=df[col],mode='lines',name=str(col),opacity=0.8))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-    return html.Div([
-        dcc.Graph(figure = go.Figure(data=traces[:]))
-    ])
 
 #BUTTONS
 btn1 = html.Button('Trigger / Get Data', id='btn-1', n_clicks=0)
@@ -58,18 +40,10 @@ checklist1 = dcc.Checklist(
                 value=['1'])
 '''*************************************************************************'''
 memDepthImport = pd.read_csv('memoryDepth.csv')
-i = 0
-memDepthOptions = []
-for row in memDepthImport['oneChannel']:
-    if row != 'NULL':
-        memDepthOptions.append({'label':row, 'value':i})
-    i = i + 1
 
 #RADIO ITEMS
 radioList1 = dcc.RadioItems(
-        id = 'memDepthList',
-        options = memDepthOptions,
-        value = 4)
+        id = 'memDepthList')
 '''*************************************************************************'''
 #TABS
 tabs = dcc.Tabs(id="tabs", value='tab-1', children=[
@@ -89,7 +63,6 @@ app.layout = html.Div([
         className="row")])
 
 
-
 #function which manages content displayed in tabs 
 #When each tab is chosen we replace the main Div 'output' with a specific Div for this tab
 #ie tab1-output, tab2-output, tab3-output
@@ -100,7 +73,7 @@ def render_content(tab):
         child1 = html.Div([
                         html.H3('Channels'),
                         checklist1,
-                        html.H3('Sampling Rate'),
+                        html.H3('Memory Depth'),
                         radioList1,
                         btn1],
                     style = {'overflow':'auto','height':'80vh'})
@@ -115,29 +88,25 @@ def render_content(tab):
               [State('oscillChannelList', 'value'), State('memDepthList', 'value')])
 #start the signal plotter script
 def button1(clicks, CH, mDepth):
+    input("mDepth type is: " + str(type(mDepth)))
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
-    if (clicks == 0) or (len(CH) == 0):
+    if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == 'NoneType'):
         return
     system('clear')
     #get the memory depth
     if len(CH) == 1:
         depth = memDepthImport.iloc[mDepth]['oneChannel']
-        print("MEMORY DEPTH: " + str(depth))
     elif len(CH) == 2:
         depth = memDepthImport.iloc[mDepth]['twoChannels']
-        print("MEMORY DEPTH: " + str(depth))
     else:
         depth = memDepthImport.iloc[mDepth]['threeFourChannels']
-        print("MEMORY DEPTH: " + str(depth))
 
     scope=rg.RIGOL_DS1104Z()
-    data = pd.DataFrame()
-    scope.initialize_scope(channel = CH, memDepth = depth)
+    data = pd.DataFrame() #make an empty dataframe where the data will go
+    scope.initialize_scope(channel = CH, memDepth = depth) #initialize the scope and channels
     print("Channels Initialized")
     print("Triggering Single")
-    print(scope.wave_source_get())
-    print(scope.acquire_depth_get())
     scope.single()
     sleep(1)
     #wait until the scope is done with it's trigger
@@ -151,14 +120,8 @@ def button1(clicks, CH, mDepth):
     for i in CH:
         data['CH' + str(i)] = scope.channel_data_return(int(i))
     #now we have all the channel data, let's generate an x-axis
-    pts = len(data)
-    srate = scope.acquire_srate_get()
-    data['Time']=np.linspace(0,(pts/srate), pts)
-    #the 'Time' column is at the end of the dataframe, let's move it to the first column
-    cols = data.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    data = data[cols]
-    return parse_contents(data)
+    sample_rate = scope.acquire_srate_get()
+    return dbf.parse_contents(data, sample_rate) #
     #return html.Div(["succuss!"])
     
 @app.callback(Output('memDepthList','options'),
