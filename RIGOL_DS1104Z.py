@@ -174,6 +174,8 @@ class RIGOL_DS1104Z():
         self.wave_stop_point(stop)
         #get the raw data
         raw = np.array(self.scope.query_ascii_values(':WAV:DATA?', converter='s'))
+        #check for data type
+        print(type(raw))
         values = raw[1:].astype(float)
         values = np.around(values, decimals = decimals)
         return values
@@ -203,6 +205,7 @@ class RIGOL_DS1104Z():
             stop = start + maxReadPerQuerry
             if stop > int(self.acquire_depth_get()):
                 stop = int(self.acquire_depth_get())
-            channelData = np.concatenate((channelData,self.wave_data_get(start = start, stop = stop)), axis = 0)
+            newData = self.wave_data_get(start = start, stop = stop)
+            channelData = np.concatenate((channelData,newData), axis = 0)
         print("Data retrieved from " + str(self.wave_source_get()))
         return channelData

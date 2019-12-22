@@ -57,7 +57,20 @@ checklist1 = dcc.Checklist(
                      {'label': 'Channel 4', 'value': '4'}],
                 value=['1'])
 '''*************************************************************************'''
-    
+memDepthImport = pd.read_csv('memoryDepth.csv')
+i = 0
+memDepthOptions = []
+for row in memDepthImport['oneChannel']:
+    if row != 'NULL':
+        memDepthOptions.append({'label':row, 'value':i})
+    i = i + 1
+
+#RADIO ITEMS
+radioList1 = dcc.RadioItems(
+        id = 'memDepthList',
+        options = memDepthOptions,
+        value = 4)
+'''*************************************************************************'''
 #TABS
 tabs = dcc.Tabs(id="tabs", value='tab-1', children=[
         dcc.Tab(label='DS1104Z', value='tab-1')
@@ -87,6 +100,8 @@ def render_content(tab):
         child1 = html.Div([
                         html.H3('Channels'),
                         checklist1,
+                        html.H3('Sampling Rate'),
+                        radioList1,
                         btn1],
                     style = {'overflow':'auto','height':'80vh'})
         child2 = html.Div(id = 'tab1-output')
@@ -97,16 +112,26 @@ def render_content(tab):
 #Oscilloscope app
 @app.callback(Output('tab1-output', 'children'),
               [Input('btn-1', 'n_clicks')],
-              [State('oscillChannelList', 'value')])
+              [State('oscillChannelList', 'value'), State('memDepthList', 'value')])
 #start the signal plotter script
-def button1(clicks, CH):
+def button1(clicks, CH, mDepth):
     #prevent the scope from triggering upon entering application before button is clicked
-    if clicks == 0:
+    if (clicks == 0) or (len(CH) == 0):
         return
     system('clear')
+    #get the memory depth
+    if len(CH) == 1:
+        depth = memDepthImport.iloc[mDepth]['oneChannel']
+        print("MEMORY DEPTH: " + str(depth))
+    elif len(CH) == 2:
+        depth = memDepthImport.iloc[mDepth]['twoChannels']
+        print("MEMORY DEPTH: " + str(depth))
+    else:
+        depth = memDepthImport.iloc[mDepth]['threeFourChannels']
+        print("MEMORY DEPTH: " + str(depth))
     scope=rg.RIGOL_DS1104Z()
     data = pd.DataFrame()
-    scope.initialize_scope(channel = CH)
+    scope.initialize_scope(channel = CH, memDepth = mDepth)
     print("Channels Initialized")
     print("Triggering Single")
     print(scope.wave_source_get())
@@ -134,6 +159,33 @@ def button1(clicks, CH):
     return parse_contents(data)
     #return html.Div(["succuss!"])
     
-    
+@app.callback(Output('memDepthList','options'),
+            [Input('oscillChannelList','value')])
+def memDepthOptions(CH):
+    if len(CH) <= 1:
+        i = 0
+        mDepthOptions = []
+        for row in memDepthImport['oneChannel']:
+            if row != 'NULL':
+                mDepthOptions.append({'label':row, 'value':i})
+            i = i + 1
+        return mDepthOptions
+    elif len(CH) == 2:
+        i = 0
+        mDepthOptions = []
+        for row in memDepthImport['twoChannels']:
+            if row != 'NULL':
+                mDepthOptions.append({'label':row, 'value':i})
+            i = i + 1
+        return mDepthOptions
+    else:
+        i = 0
+        mDepthOptions = []
+        for row in memDepthImport['threeFourChannels']:
+            if row != 'NULL':
+                mDepthOptions.append({'label':row, 'value':i})
+            i = i + 1
+        return mDepthOptions
+
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
