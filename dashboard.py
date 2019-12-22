@@ -90,7 +90,7 @@ def render_content(tab):
 def button1(clicks, CH, mDepth):
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
-    if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == 'NoneType'):
+    if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == "<class 'NoneType'>"):
         return
     system('clear')
     #get the memory depth
@@ -104,8 +104,6 @@ def button1(clicks, CH, mDepth):
     scope=rg.RIGOL_DS1104Z()
     data = pd.DataFrame() #make an empty dataframe where the data will go
     scope.initialize_scope(channel = CH, memDepth = depth) #initialize the scope and channels
-    print("Channels Initialized")
-    print("Triggering Single")
     scope.single()
     sleep(1)
     #wait until the scope is done with it's trigger
@@ -113,9 +111,6 @@ def button1(clicks, CH, mDepth):
     while "STOP" not in scope_status:
         sleep(0.3)
         scope_status = scope.trigger_status()
-    print("Trigger event complete\n")
-    
-    
     for i in CH:
         data['CH' + str(i)] = scope.channel_data_return(int(i))
     #now we have all the channel data, let's generate an x-axis
@@ -127,29 +122,11 @@ def button1(clicks, CH, mDepth):
             [Input('oscillChannelList','value')])
 def memDepthOptions(CH):
     if len(CH) <= 1:
-        i = 0
-        mDepthOptions = []
-        for row in memDepthImport['oneChannel']:
-            if row != 'NULL':
-                mDepthOptions.append({'label':row, 'value':i})
-            i = i + 1
-        return mDepthOptions
+        return (dbf.create_options(memDepthImport['oneChannel']))
     elif len(CH) == 2:
-        i = 0
-        mDepthOptions = []
-        for row in memDepthImport['twoChannels']:
-            if row != 'NULL':
-                mDepthOptions.append({'label':row, 'value':i})
-            i = i + 1
-        return mDepthOptions
+        return (dbf.create_options(memDepthImport['twoChannels']))
     else:
-        i = 0
-        mDepthOptions = []
-        for row in memDepthImport['threeFourChannels']:
-            if row != 'NULL':
-                mDepthOptions.append({'label':row, 'value':i})
-            i = i + 1
-        return mDepthOptions
+        return (dbf.create_options(memDepthImport['threeFourChannels']))
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)

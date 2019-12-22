@@ -19,9 +19,15 @@ def parse_contents(df, sample_rate):
         return html.Div([
             'There was an error processing this file.'
         ])
+    fig =  go.Figure(data=traces[:])
+    fig.update_layout(
+            title = 'Scope Traces',
+            xaxis_title = "Time (s)",
+            yaxis_title = "Volts"
+            )
     return html.Div([
-        dcc.Graph(figure = go.Figure(data=traces[:]))
-    ])
+        dcc.Graph(figure = fig)
+        ])
 
 def calc_query_req(frmt, mDepth):
         if frmt == 'BYTE':
@@ -33,3 +39,13 @@ def calc_query_req(frmt, mDepth):
         else:
             maxReadsPerQuery = 15625
         return (int(int(mDepth) /int( maxReadsPerQuery)) + 1), maxReadsPerQuery
+
+
+def create_options(dfCol):
+    i = 0
+    lstBuf = []
+    for row in dfCol:
+        if row != "NULL":
+            lstBuf.append({'label':row, 'value':i})
+        i = i + 1
+    return lstBuf
