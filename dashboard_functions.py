@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import dash_core_components as dcc
 import dash_html_components as html
 import RIGOL_DS1104Z as rg
+import math
 
 def parse_contents(df, sample_rate):
     try:
@@ -48,3 +49,41 @@ def create_options(dfCol):
             lstBuf.append({'label':row, 'value':i})
         i = i + 1
     return lstBuf
+
+
+def to_si(d, sep= ' '):
+    #convert number to string with SI prefix
+
+    incPrefixes = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
+    decPrefixes = ['m', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
+
+    if d == 0:
+        return str(0)
+
+    degree = int(math.floor(math.log10(math.fabs(d))/3))
+    prefix = ''
+    if degree != 0:
+        ds = degree/math.fabs(degree)
+        if ds == 1:
+            if degree -1 < len(incPrefixes):
+                prefix = incPrefixes[degree -1]
+            else:
+                prefix = incPrefixes[-1]
+                degree = len(incPrefixes)
+
+        elif ds == -1:
+            if -degree -1 < len(decPrefixes):
+                prefix = decPrefixes[-degree -1]
+            else:
+                prefix = decPrefixes[-1]
+                degree = -len(decPrefixes)
+
+        scaled = float(d * math.pow(1000, -degree))
+
+        s = "{scaled}{sep}{prefix}".format(scaled = scaled,sep = sep, prefix = prefix)
+
+    else:
+        s = "{d}".format(d=d)
+    s = s + "Sa/s"
+    return(s)
+

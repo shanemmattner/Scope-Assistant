@@ -96,7 +96,7 @@ col1_row5 = dbc.Row([
                 dbc.Col([
                     radio_sampleRate],
                 width={'size':4, "offset":3}),
-                btn_update_sRate])
+                html.Div([html.Div(""),btn_update_sRate])]) #we're doing this weird placement because otherwise the button strecthes to the size of the radio buttons
 
 
 col1_row6 = dbc.Row([
@@ -167,8 +167,8 @@ def button1(clicks, CH, mDepth):
     #return html.Div(["succuss!"])
     
 @app.callback(Output('radio_sRate','options'),
-            [Input('chkLst_channels','value')])
-def memDepthOptions(CH):
+            [Input('chkLst_channels','value'), Input('btn-uSrate', 'n_clicks')])
+def memDepthOptions(CH, u_clicks):
     scope = rg.RIGOL_DS1104Z()
     scope.get_USB_port()
     time_scale = float(scope.time_scale_get())
@@ -176,13 +176,23 @@ def memDepthOptions(CH):
     total_time = time_scale * divisions
     #get the time scale
     if len(CH) <= 1:
-        sRateCol = (memDepthImport['oneChannel'] / total_time).apply(lambda x : "{:,}".format(x))# format the sampling rate with commas
-        return (dbf.create_options(sRateCol))
+        srate = (memDepthImport['oneChannel'] / total_time).round()
+        lst = []
+        for i in srate:
+            lst.append(dbf.to_si(i))
+        return (dbf.create_options(lst))
     elif len(CH) == 2:
-        sRateCol = (memDepthImport['twoChannels'] / total_time).apply(lambda x : "{:,}".format(x))
-        return (dbf.create_options(sRateCol))
+        srate = (memDepthImport['twoChannels'] / total_time).round()
+        lst = []
+        for i in srate:
+            lst.append(dbf.to_si(i))
+        return (dbf.create_options(lst))
     else:
-        sRateCol = (memDepthImport['threeFourChannels'] / total_time).apply(lambda x : "{:,}".format(x)) #assume dividing by 4
-        return (dbf.create_options(sRateCol))
+
+        srate = (memDepthImport['threeFourChannels'] / total_time).round()
+        lst = []
+        for i in srate:
+            lst.append(dbf.to_si(i))
+        return (dbf.create_options(lst))
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
