@@ -31,12 +31,6 @@ app.config.suppress_callback_exceptions = True #prevents errors if we reference 
 btn_trigger = html.Button('Trigger', id='btn-trig', n_clicks=0, style={'padding':'30px 100px', 'boarder-radius':'10px'})
 btn_update_sRate = html.Button('Update', id='btn-uSrate',n_clicks=0, style={'padding':'10px 20px'})
 '''*************************************************************************'''
-#INPUTS
-input1 = dcc.Input(id = "CH1", placeholder = "Channel 1")
-input2 = dcc.Input(id = "CH2", placeholder = "Channel 2")
-input3 = dcc.Input(id = "CH3", placeholder = "Channel 3")
-input4 = dcc.Input(id = "CH4", placeholder = "Channel 4")
-'''*************************************************************************'''
 
 #CHECKLISTS
 channel_checklist = dcc.Checklist(
@@ -56,10 +50,10 @@ radio_sampleRate = dcc.RadioItems(
         id = 'radio_sRate')
 '''*************************************************************************'''
 channel_labels = dbc.Col([
-    dcc.Input(id="channel_1", type="text", placeholder = "Channel 1", style={'width':100}),
-                    dcc.Input(id="channel_2", type="text", placeholder = "Channel 2", style={'width':100}),
-                    dcc.Input(id="channel_3", type="text", placeholder = "Channel 3", style={'width':100}),
-                    dcc.Input(id="channel_4", type="text", placeholder = "Channel 4", style={'width':100})
+                    dcc.Input(id="channel_1", type="text", value = "Channel 1", style={'width':100}),
+                    dcc.Input(id="channel_2", type="text", value = "Channel 2", style={'width':100}),
+                    dcc.Input(id="channel_3", type="text", value = "Channel 3", style={'width':100}),
+                    dcc.Input(id="channel_4", type="text", value = "Channel 4", style={'width':100})
                     ])
 
 
@@ -131,15 +125,14 @@ app.layout = html.Div([
 #Oscilloscope app
 @app.callback(Output('outputDiv', 'children'),
               [Input('btn-trig', 'n_clicks')],
-              [State('chkLst_channels', 'value'), State('radio_sRate', 'value')])
+              [State('chkLst_channels', 'value'), State('radio_sRate', 'value'), State('channel_1', 'value'), State('channel_2', 'value'), State('channel_3', 'value'), State('channel_4', 'value')])
 #start the signal plotter script
-def button1(clicks, CH, mDepth):
+def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
     if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == "<class 'NoneType'>"):
         return
     system('clear')
-    #get the memory depth
     if len(CH) == 1:
         depth = memDepthImport.iloc[mDepth]['oneChannel']
     elif len(CH) == 2:
@@ -158,7 +151,18 @@ def button1(clicks, CH, mDepth):
         sleep(0.3)
         scope_status = scope.trigger_status()
     for i in CH:
-        data['CH' + str(i)] = scope.channel_data_return(int(i))
+        print("i = " + str(i))
+        print("ch1 label: " + ch1_label)
+        if int(i) == 1:
+            data[ch1_label] = scope.channel_data_return(int(i))
+        elif int(i) == 2:
+            data[ch2_label] = scope.channel_data_return(int(i))
+        elif int(i) == 3:
+            data[ch3_label] = scope.channel_data_return(int(i))
+        else:
+            data[ch4_label] = scope.channel_data_return(int(i))
+   #now we have all the channel data, let's generate an x-axis
+    
     #now we have all the channel data, let's generate an x-axis
     sample_rate = scope.acquire_srate_get()
    # data['Time'] = np.linspace(0, (len(data)/sample_rate), len(data))
