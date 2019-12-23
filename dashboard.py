@@ -1,6 +1,7 @@
 #ip installed imports
 import base64
 import dash
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
@@ -20,72 +21,117 @@ scope_pic = base64.b64encode(open('ds1104z.png', 'rb').read())
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 #import styling
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+#app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 #create the server
 server = app.server
 app.config.suppress_callback_exceptions = True #prevents errors if we reference components before they're defined
 
 #BUTTONS
-btn1 = html.Button('Trigger / Get Data', id='btn-1', n_clicks=0)
-
+btn_trigger = html.Button('Trigger', id='btn-trig', n_clicks=0, style={'padding':'30px 100px', 'boarder-radius':'10px'})
+btn_update_sRate = html.Button('Update', id='btn-uSrate',n_clicks=0, style={'padding':'10px 20px'})
 '''*************************************************************************'''
+#INPUTS
+input1 = dcc.Input(id = "CH1", placeholder = "Channel 1")
+input2 = dcc.Input(id = "CH2", placeholder = "Channel 2")
+input3 = dcc.Input(id = "CH3", placeholder = "Channel 3")
+input4 = dcc.Input(id = "CH4", placeholder = "Channel 4")
+'''*************************************************************************'''
+
 #CHECKLISTS
-checklist1 = dcc.Checklist(
-                id = 'oscillChannelList',
+channel_checklist = dcc.Checklist(
+                id = 'chkLst_channels',
                 options=[
                      {'label': 'Channel 1', 'value': '1'},
                      {'label': 'Channel 2', 'value': '2'},
                      {'label': 'Channel 3', 'value': '3'},
                      {'label': 'Channel 4', 'value': '4'}],
-                value=['1'])
+                value=['1'],
+                labelStyle={'display':'vertical'})
 '''*************************************************************************'''
 memDepthImport = pd.read_csv('memoryDepth.csv')
 
 #RADIO ITEMS
-radioList1 = dcc.RadioItems(
-        id = 'memDepthList')
+radio_sampleRate = dcc.RadioItems(
+        id = 'radio_sRate')
 '''*************************************************************************'''
-#TABS
-tabs = dcc.Tabs(id="tabs", value='tab-1', children=[
-        dcc.Tab(label='DS1104Z', value='tab-1')
-])
-'''*************************************************************************'''
+channel_labels = dbc.Col([
+    dcc.Input(id="channel_1", type="text", placeholder = "Channel 1", style={'width':100}),
+                    dcc.Input(id="channel_2", type="text", placeholder = "Channel 2", style={'width':100}),
+                    dcc.Input(id="channel_3", type="text", placeholder = "Channel 3", style={'width':100}),
+                    dcc.Input(id="channel_4", type="text", placeholder = "Channel 4", style={'width':100})
+                    ])
+
+
+header = html.Div([
+    html.Img(src='data:image/png;base64,{}'.format(scope_pic.decode()), width = 200)])
+
+col1_row1 = dbc.Row([
+                html.H5("Rigol DS1104Z+"),
+                html.H5("Scope Assistant v0.2")
+                ],
+                justify = "center")
+
+
+col1_row2 = dbc.Row([
+                html.H6("Channels",
+                    style={
+                        'textAlign':'left',
+                        'padding-right':'100px'}),
+                html.H6("Labels")],
+                justify = "center")
+
+col1_row3 = dbc.Row([
+                dbc.Col([
+                    channel_checklist],
+                width={'size':4, "offset":3}),
+                channel_labels])
+
+col1_row4 = dbc.Row([
+                html.H4("Sampling Rate")],
+                justify = "center")
+
+
+col1_row5 = dbc.Row([
+                dbc.Col([
+                    radio_sampleRate],
+                width={'size':4, "offset":3}),
+                btn_update_sRate])
+
+
+col1_row6 = dbc.Row([
+                btn_trigger],
+                justify = "center")
+
+
+
+column1 =  dbc.Col(html.Div([col1_row1,
+                             col1_row2,
+                             col1_row3,
+                             col1_row4,
+                             col1_row5,
+                             col1_row6], 
+                        id = 'userInputDiv'), width = 3)
+
+column2 =  dbc.Col(html.Div("column2", id = 'outputDiv'), width = 9)
+
+row1 = html.Div([
+            dbc.Row([
+                column1,
+                column2]),
+                ])
+
+
 app.layout = html.Div([
-    html.Img(src='data:image/png;base64,{}'.format(scope_pic.decode()), width = 200),
-    html.Div([
-        html.Div([
-            tabs,
-            html.Div(id = 'tabs-content')],
-            className="three columns" ),
-        html.Div([
-            html.Div(id = 'output')],
-            className="nine columns"),], 
-        className="row")])
-
-
-#function which manages content displayed in tabs 
-#When each tab is chosen we replace the main Div 'output' with a specific Div for this tab
-#ie tab1-output, tab2-output, tab3-output
-@app.callback([Output('tabs-content', 'children'), Output("output","children")],
-              [Input('tabs', 'value')])
-def render_content(tab):
-    if tab == 'tab-1':
-        child1 = html.Div([
-                        html.H3('Channels'),
-                        checklist1,
-                        html.H3('Sampling Rate'),
-                        radioList1,
-                        btn1],
-                    style = {'overflow':'auto','height':'80vh'})
-        child2 = html.Div(id = 'tab1-output')
-        return child1, child2
-
+                    header,
+                    row1
+                     ])
 
 #define function for Button 2
 #Oscilloscope app
-@app.callback(Output('tab1-output', 'children'),
-              [Input('btn-1', 'n_clicks')],
-              [State('oscillChannelList', 'value'), State('memDepthList', 'value')])
+@app.callback(Output('outputDiv', 'children'),
+              [Input('btn-trig', 'n_clicks')],
+              [State('chkLst_channels', 'value'), State('radio_sRate', 'value')])
 #start the signal plotter script
 def button1(clicks, CH, mDepth):
     #prevent the scope from triggering upon entering application before button is clicked
@@ -115,11 +161,13 @@ def button1(clicks, CH, mDepth):
         data['CH' + str(i)] = scope.channel_data_return(int(i))
     #now we have all the channel data, let's generate an x-axis
     sample_rate = scope.acquire_srate_get()
+   # data['Time'] = np.linspace(0, (len(data)/sample_rate), len(data))
+    #data.to_csv('traces.csv')
     return dbf.parse_contents(data, sample_rate) #
     #return html.Div(["succuss!"])
     
-@app.callback(Output('memDepthList','options'),
-            [Input('oscillChannelList','value')])
+@app.callback(Output('radio_sRate','options'),
+            [Input('chkLst_channels','value')])
 def memDepthOptions(CH):
     scope = rg.RIGOL_DS1104Z()
     scope.get_USB_port()
@@ -134,7 +182,7 @@ def memDepthOptions(CH):
         sRateCol = (memDepthImport['twoChannels'] / total_time).apply(lambda x : "{:,}".format(x))
         return (dbf.create_options(sRateCol))
     else:
-        sRateCol = (memDepthImport['threeFourChannels'] / total_time).apply(lambda x : "{:,}".format(x))
+        sRateCol = (memDepthImport['threeFourChannels'] / total_time).apply(lambda x : "{:,}".format(x)) #assume dividing by 4
         return (dbf.create_options(sRateCol))
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
