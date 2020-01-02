@@ -24,7 +24,9 @@ def parse_contents(df, sample_rate):
     fig.update_layout(
             xaxis_title = "Time (s)",
             yaxis_title = "Volts (V)",
-            showlegend = True
+            showlegend = True,
+            width=1400,
+            height=800
             )
     return html.Div([
         dcc.Graph(figure = fig)

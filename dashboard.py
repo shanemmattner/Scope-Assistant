@@ -6,9 +6,10 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 import numpy as np
+import os
 from os import chdir, system
 import pandas as pd
-#import plotly.graph_objs as go
+import sqlite3
 from time import sleep
 import visa
 #user created imports
@@ -151,8 +152,6 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
         sleep(0.3)
         scope_status = scope.trigger_status()
     for i in CH:
-        print("i = " + str(i))
-        print("ch1 label: " + ch1_label)
         if int(i) == 1:
             data[ch1_label] = scope.channel_data_return(int(i))
         elif int(i) == 2:
@@ -161,18 +160,16 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
             data[ch3_label] = scope.channel_data_return(int(i))
         else:
             data[ch4_label] = scope.channel_data_return(int(i))
-   #now we have all the channel data, let's generate an x-axis
     
-    #now we have all the channel data, let's generate an x-axis
+    
     sample_rate = scope.acquire_srate_get()
-   # data['Time'] = np.linspace(0, (len(data)/sample_rate), len(data))
-    #data.to_csv('traces.csv')
-    return dbf.parse_contents(data, sample_rate) #
-    #return html.Div(["succuss!"])
+    return dbf.parse_contents(data, sample_rate)
     
 @app.callback(Output('radio_sRate','options'),
             [Input('chkLst_channels','value'), Input('btn-uSrate', 'n_clicks')])
 def memDepthOptions(CH, u_clicks):
+   # if u_clicks == 0:
+    #    return
     scope = rg.RIGOL_DS1104Z()
     scope.get_USB_port()
     time_scale = float(scope.time_scale_get())

@@ -28,8 +28,16 @@ class RIGOL_DS1104Z():
         available=rm.list_resources()
         #usually the oscilloscope will be the 0th element of the available array
         self.scopeName=available[1]
-        #open the oscilloscope, timeout of 5sec, 
-        self.scope=rm.open_resource(self.scopeName, timeout=5000, chunk_size=1024000)
+        #we try 10 attempts at opening the resource.  
+        attempts = 10
+        while attempts > 0:
+            try:
+                #open the oscilloscope, timeout of 5sec,  
+                self.scope=rm.open_resource(self.scopeName, timeout=5000, chunk_size=1024000)
+                attempts = 0
+            except:
+                print("attempts: " + str(attempts))
+                attempts = attempts - 1
           
     def initialize_scope(self,format_type = 'ASC', mode = 'RAW', memDepth = 1200000, channel = 1):
         #get the USB port and name of scope. Open the scope to transmission
