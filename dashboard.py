@@ -2,10 +2,8 @@
 import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 import numpy as np
-import os
 from os import chdir, system
 import pandas as pd
 import sqlite3
@@ -69,9 +67,15 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
     return dbf.parse_contents(data, sample_rate)
    
 
-@app.callback(Output('radio_sRate','options'),
-            [Input('chkLst_channels','value'), Input('btn-uSrate', 'n_clicks')])
-def memDepthOptions(CH, u_clicks):
+@app.callback([Output('radio_sRate','options'),Output('radio_sRate','value')],
+            [Input('chkLst_channels','value'), Input('btn-uSrate', 'n_clicks')],
+            [State('radio_sRate','value')])
+def memDepthOptions(CH, u_clicks,sRate):
+    #make sure there is a default sampling rate, assume it's the lowest (option 4)
+    usr_sel = 4
+    #if the user has selected a sampling rate then sRate will not be 'None'
+    if str(sRate) != 'None':
+        usr_sel = sRate #set the user selected sampling rate
     scope = rg.RIGOL_DS1104Z()
     scope.get_USB_port()
     time_scale = float(scope.time_scale_get())
@@ -83,19 +87,19 @@ def memDepthOptions(CH, u_clicks):
         lst = []
         for i in srate:
             lst.append(dbf.to_si(i))
-        return (dbf.create_options(lst))
+        return (dbf.create_options(lst), usr_sel)
     elif len(CH) == 2:
         srate = (memDepthImport['twoChannels'] / total_time).round()
         lst = []
         for i in srate:
             lst.append(dbf.to_si(i))
-        return (dbf.create_options(lst))
+        return (dbf.create_options(lst), usr_sel)
     else:
 
         srate = (memDepthImport['threeFourChannels'] / total_time).round()
         lst = []
         for i in srate:
             lst.append(dbf.to_si(i))
-        return (dbf.create_options(lst))
+        return (dbf.create_options(lst), usr_sel)
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
