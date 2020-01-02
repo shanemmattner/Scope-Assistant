@@ -6,21 +6,20 @@ import dash_html_components as html
 import RIGOL_DS1104Z as rg
 import math
 
-def parse_contents(df, sample_rate):
+def create_fig(df):
     try:
-        pts = len(df)
-        xAxis = np.linspace(0,(pts/sample_rate), pts) 
-        #create empty list for putting traces in
-        traces = []
+        trace_buf = []
         for col in df:
-            #TODO: add to different axis depending on the highest value of the signals
-            traces.append(go.Scattergl(x=xAxis,y=df[col],mode='lines',name=str(col),opacity=0.8))
+            if 'Time' in col:
+                pass 
+            else:
+                trace_buf.append(go.Scattergl(x=df['Time'],y=df[col],mode='lines',name=str(col),opacity=0.8))
     except Exception as e:
         print(e)
         return html.Div([
             'There was an error processing this file.'
         ])
-    fig =  go.Figure(data=traces[:])
+    fig =  go.Figure(data=trace_buf[:])
     fig.update_layout(
             xaxis_title = "Time (s)",
             yaxis_title = "Volts (V)",

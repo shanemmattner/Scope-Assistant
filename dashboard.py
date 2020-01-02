@@ -10,18 +10,19 @@ import sqlite3
 from time import sleep
 import visa
 #user created imports
+import dashboard_db as dbdb
 import dashboard_functions as dbf
 import dashboard_html as dbh
 import RIGOL_DS1104Z as rg
 
 chdir("/home/pi/dashboard/Scope-Assistant")
+system('clear')
+
+memDepthImport = pd.read_csv('memoryDepth.csv')
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.config.suppress_callback_exceptions = True #prevents errors if we reference components before they're defined
-
-memDepthImport = pd.read_csv('memoryDepth.csv')
-
 app.layout = html.Div([
                     dbh.header,
                     dbh.row_1
@@ -55,16 +56,20 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
         sleep(0.3)
         scope_status = scope.trigger_status()
     for i in CH:
+        scope_data = scope.channel_data_return(int(i))
         if int(i) == 1:
-            data[ch1_label] = scope.channel_data_return(int(i))
+            data[ch1_label] = scope_data
         elif int(i) == 2:
-            data[ch2_label] = scope.channel_data_return(int(i))
+            data[ch2_label] = scope_data
         elif int(i) == 3:
-            data[ch3_label] = scope.channel_data_return(int(i))
+            data[ch3_label] = scope_data
         else:
-            data[ch4_label] = scope.channel_data_return(int(i))
-    sample_rate = scope.acquire_srate_get()
-    return dbf.parse_contents(data, sample_rate)
+            data[ch4_label] = scope_data
+    sample_rate = scope.acquire_srate_get() #get sample rate for calculating x axis
+    data['Time'] = np.linspace(0,(len(data)/sample_rate), len(data))# make the time axis
+    df_test = dbdb.retrieve_table(dbdb.connect())
+    df_test.describe()
+    return dbf.create_fig(df_test)
    
 
 @app.callback([Output('radio_sRate','options'),Output('radio_sRate','value')],
