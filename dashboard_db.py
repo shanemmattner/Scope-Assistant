@@ -10,7 +10,6 @@ def connect(db_path = DEFAULT_PATH):
     try:
         conn = sqlite3.connect(db_path)
         create_desc_table(conn)#we make sure there's a description table every time we connect
-        print(list_tables(conn))
     except:
         print("Error")
     return conn
