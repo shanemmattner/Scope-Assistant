@@ -38,7 +38,7 @@ def create_desc_table(conn):
             sRate float NOT NULL
             );"""
         cur = conn.cursor()
-        cur.execute(sql_create_desc_table)
+        #cur.execute(sql_create_desc_table)
     except:
         print("Error")
 
@@ -48,12 +48,16 @@ def add_desc_entry(conn,description, sample_rate):
             INSERT INTO desc
             (id, date, desc, sRate)
             VALUES
-            (1,'19:81:10:10', 'the first insert', 0.00032)
+            (4,'19:81:10:00', 'the four insert', 0.001)
             """
         cur = conn.cursor()
+
+        test = pd.read_sql_query('SELECT * FROM desc', conn)
+        print("number 1: ", test)
         cur.execute(sql_insert_query)
         test = pd.read_sql_query('SELECT * FROM desc', conn)
         print(test)
+        conn.commit()
     except:
         print("couldn't add description")
 
