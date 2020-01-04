@@ -38,18 +38,21 @@ def create_desc_table(conn):
             sRate float NOT NULL
             );"""
         cur = conn.cursor()
-        #cur.execute(sql_create_desc_table)
+        cur.execute(sql_create_desc_table) #no commit needed, this is table structure stuff
     except:
         print("Error")
 
 def add_desc_entry(conn,description, sample_rate):
     try:
+        #get the length of the desc table
+        desc_table = pd.read_sql_query("SELECT * FROM desc", conn)
+        print(desc_table)
         sql_insert_query = """
             INSERT INTO desc
-            (id, date, desc, sRate)
+            (date, desc, sRate)
             VALUES
-            (4,'19:81:10:00', 'the four insert', 0.001)
-            """
+            ("{}","{}",{})
+            """.format('01-04-20','testing', sample_rate)
         cur = conn.cursor()
 
         test = pd.read_sql_query('SELECT * FROM desc', conn)
@@ -58,7 +61,7 @@ def add_desc_entry(conn,description, sample_rate):
         test = pd.read_sql_query('SELECT * FROM desc', conn)
         print(test)
         conn.commit()
-    except:
-        print("couldn't add description")
+    except Exception as e:
+        print("couldn't add description: ", e)
 
             
