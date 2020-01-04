@@ -10,7 +10,7 @@ def create_fig(df):
     try:
         trace_buf = []
         for col in df:
-            if 'Time' in col:
+            if ('Time' in col) or ('index' in col):
                 pass 
             else:
                 trace_buf.append(go.Scattergl(x=df['Time'],y=df[col],mode='lines',name=str(col),opacity=0.8))
@@ -86,6 +86,6 @@ def to_si(d, sep= ' '):
 
     else:
         s = "{d}".format(d=d)
-    s = s + "Sa/s"
+    s = s + "Hz"
     return(s)
 

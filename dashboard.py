@@ -67,8 +67,11 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
             data[ch4_label] = scope_data
     sample_rate = scope.acquire_srate_get() #get sample rate for calculating x axis
     data['Time'] = np.linspace(0,(len(data)/sample_rate), len(data))# make the time axis
+    dbdb.create_table(dbdb.connect(), data)
+    #add an entry to the desc table
+    dbdb.add_desc_entry(dbdb.connect(), 'test',sample_rate) 
     df_test = dbdb.retrieve_table(dbdb.connect())
-    df_test.describe()
+    #print(dbdb.list_tables(dbdb.connect()))
     return dbf.create_fig(df_test)
    
 

@@ -178,7 +178,6 @@ class RIGOL_DS1104Z():
         #get the raw data
         raw = np.array(self.scope.query_ascii_values(':WAV:DATA?', converter='s'))
         #check for data type
-        print(type(raw))
         values = raw[1:].astype(float)
         values = np.around(values, decimals = decimals)
         return values
@@ -186,7 +185,6 @@ class RIGOL_DS1104Z():
     def channel_data_return(self, channel):
         self.stop()
         self.wave_source_set(channel)
-        print("Getting data from " + str(self.wave_source_get()))
         memDepth = self.acquire_depth_get()
         queryFormat = self.wave_format_get()
         numQueriesNeeded, maxReadsPerQuery = dbf.calc_query_req(str(queryFormat), memDepth)
@@ -198,5 +196,4 @@ class RIGOL_DS1104Z():
                 stop = int(self.acquire_depth_get())
             newData = self.single_channel_data(start = start, stop = stop)
             channelData = np.concatenate((channelData,newData), axis = 0)
-        print("Data retrieved from " + str(self.wave_source_get()))
         return channelData
