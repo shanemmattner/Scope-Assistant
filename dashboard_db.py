@@ -48,23 +48,18 @@ def add_desc_entry(conn,description, sample_rate):
         #get the date
         now = datetime.today()
         frmt_now = now.strftime("%Y-%m-%d %H:%M:%S") #TODO: convert from UTC to CST
-        #get the length of the desc table
-        desc_table = pd.read_sql_query("SELECT * FROM desc", conn)
-        print(desc_table)
+
         sql_insert_query = """
             INSERT INTO desc
             (date, desc, sRate)
             VALUES
             ("{}","{}",{})
-            """.format(frmt_now,'testing', sample_rate)
+            """.format(frmt_now,description, sample_rate)
         cur = conn.cursor()
-
-        test = pd.read_sql_query('SELECT * FROM desc', conn)
-        print("number 1: ", test)
         cur.execute(sql_insert_query)
-        test = pd.read_sql_query('SELECT * FROM desc', conn)
-        print(test)
         conn.commit()
+        desc_table = pd.read_sql_query("SELECT * FROM desc", conn)
+        print(desc_table)
     except Exception as e:
         print("couldn't add description: ", e)
 

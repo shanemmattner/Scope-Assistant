@@ -30,9 +30,9 @@ app.layout = html.Div([
 
 @app.callback(Output('outputDiv', 'children'),
               [Input('btn-trig', 'n_clicks')],
-              [State('chkLst_channels', 'value'), State('radio_sRate', 'value'), State('channel_1', 'value'), State('channel_2', 'value'), State('channel_3', 'value'), State('channel_4', 'value')])
+              [State('chkLst_channels', 'value'), State('radio_sRate', 'value'), State('channel_1', 'value'), State('channel_2', 'value'), State('channel_3', 'value'), State('channel_4', 'value'), State('desc','value')])
 #start the signal plotter script
-def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
+def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label, description):
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
     if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == "<class 'NoneType'>"):
@@ -69,7 +69,7 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label):
     data['Time'] = np.linspace(0,(len(data)/sample_rate), len(data))# make the time axis
     dbdb.create_table(dbdb.connect(), data)
     #add an entry to the desc table
-    dbdb.add_desc_entry(dbdb.connect(), 'test',sample_rate) 
+    dbdb.add_desc_entry(dbdb.connect(), description, sample_rate) 
     df_test = dbdb.retrieve_table(dbdb.connect())
     #print(dbdb.list_tables(dbdb.connect()))
     return dbf.create_fig(df_test)

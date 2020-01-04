@@ -73,17 +73,21 @@ col1_row5 = dbc.Row([
 
 
 col1_row6 = dbc.Row([
+                    dcc.Input(id="desc", type="text", value = "Enter description", style={'width':400})
+                    ],
+                    justify = "center")
+
+col1_row7 = dbc.Row([
                 btn_trigger],
                 justify = "center")
-
-
 
 column1 =  dbc.Col(html.Div([col1_row1,
                              col1_row2,
                              col1_row3,
                              col1_row4,
                              col1_row5,
-                             col1_row6], 
+                             col1_row6,
+                             col1_row7], 
                         id = 'userInputDiv'), width = 3)
 
 column2 =  dbc.Col(html.Div("column2", id = 'outputDiv'), width = 9)
