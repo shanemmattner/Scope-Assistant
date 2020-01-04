@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import pandas as pd
+from datetime import datetime
 
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'database.sqlite3')
 
@@ -44,6 +45,9 @@ def create_desc_table(conn):
 
 def add_desc_entry(conn,description, sample_rate):
     try:
+        #get the date
+        now = datetime.today()
+        frmt_now = now.strftime("%Y-%m-%d %H:%M:%S") #TODO: convert from UTC to CST
         #get the length of the desc table
         desc_table = pd.read_sql_query("SELECT * FROM desc", conn)
         print(desc_table)
@@ -52,7 +56,7 @@ def add_desc_entry(conn,description, sample_rate):
             (date, desc, sRate)
             VALUES
             ("{}","{}",{})
-            """.format('01-04-20','testing', sample_rate)
+            """.format(frmt_now,'testing', sample_rate)
         cur = conn.cursor()
 
         test = pd.read_sql_query('SELECT * FROM desc', conn)
