@@ -13,6 +13,27 @@ channel_checklist = dcc.Checklist(
                 value=['1'],
                 labelStyle={'display':'vertical'})
 
+channel_checklist_1 = dcc.Checklist(
+                id = 'chkLst_CH1',
+                options = [{'label': 'Channel 1 ', 'value': '1'}],
+                style = {'font-weight':'bold', 'font-size':'200%'}
+                )
+channel_checklist_2 = dcc.Checklist(
+                id = 'chkLst_CH2',
+                options = [{'label': 'Channel 2 ', 'value': '3'}],
+                style = {'font-weight':'bold', 'font-size':'200%'}
+                )
+
+channel_checklist_3 = dcc.Checklist(
+                id = 'chkLst_CH3',
+                options = [{'label': 'Channel 3 ', 'value': '3'}],
+                style = {'font-weight':'bold', 'font-size':'200%'}
+                )
+channel_checklist_4= dcc.Checklist(
+                id = 'chkLst_CH4',
+                options = [{'label': 'Channel 4 ', 'value': '4'}],
+                style = {'font-weight':'bold', 'font-size':'200%'}
+                )
 
 #BUTTONS
 btn_trigger = html.Button('Trigger', id='btn-trig', n_clicks=0, style={'padding':'30px 100px', 'boarder-radius':'10px'})
@@ -26,50 +47,43 @@ radio_sRate = dcc.RadioItems(
 '''*************************************************************************'''
 
 channel_labels = dbc.Col([
-                    dcc.Input(id="channel_1", type="text", value = "Channel 1", style={'width':100}),
-                    dcc.Input(id="channel_2", type="text", value = "Channel 2", style={'width':100}),
-                    dcc.Input(id="channel_3", type="text", value = "Channel 3", style={'width':100}),
-                    dcc.Input(id="channel_4", type="text", value = "Channel 4", style={'width':100})
+                    dbc.Row([dcc.Input(id="channel_1", type="text", value = "Signal 1", style={'width':300, 'height':75})]),
+                    dbc.Row([dcc.Input(id="channel_2", type="text", value = "Signal 2", style={'width':300, 'height':75})]),
+                    dbc.Row([dcc.Input(id="channel_3", type="text", value = "Signal 3", style={'width':300, 'height':75})]),
+                    dbc.Row([dcc.Input(id="channel_4", type="text", value = "Signal 4", style={'width':300, 'height':75})])
                     ])
 
-
+channel_chkLst = dbc.Col([
+                        dbc.Row([channel_checklist_1],justify = "end", align = "center", style={'height':75}),                
+                        dbc.Row([channel_checklist_2],justify = "end", align = "center", style={'height':75}),                
+                        dbc.Row([channel_checklist_3],justify = "end", align = "center", style={'height':75}),                
+                        dbc.Row([channel_checklist_4],justify = "end", align = "center", style={'height':75})              
+                        ])
 
 
 scope_pic = base64.b64encode(open('ds1104z.png', 'rb').read()) 
-header = html.Div([
-    html.Img(src='data:image/png;base64,{}'.format(scope_pic.decode()), width = 200)])
-
-col1_row1 = dbc.Row([
-                html.H5("Rigol DS1104Z+"),
-                html.H5("Scope Assistant v0.2")
-                ],
-                justify = "center")
-
-
-col1_row2 = dbc.Row([
-                html.H6("Channels",
-                    style={
-                        'textAlign':'left',
-                        'padding-right':'100px'}),
-                html.H6("Labels")],
-                justify = "center")
+header = dbc.Row([
+    html.Img(src='data:image/png;base64,{}'.format(scope_pic.decode()), width = 200),
+    html.H2(" Rigol DS1104Z+ Scope Assistant v0.3")
+    ],
+    align = 'center')
 
 col1_row3 = dbc.Row([
-                dbc.Col([
-                    channel_checklist],
-                width={'size':4, "offset":3}),
-                channel_labels])
+                channel_chkLst,
+                channel_labels],
+                justify = "center")
 
 col1_row4 = dbc.Row([
-                html.H4("Sampling Rate")],
+                html.H3("Sampling Rate")],
                 justify = "center")
 
 
 col1_row5 = dbc.Row([
                 dbc.Col([
-                    radio_sRate],
-                width={'size':4, "offset":3}),
-                html.Div([html.Div(""),btn_update_sRate])]) #we're doing this weird placement because otherwise the button strecthes to the size of the radio buttons
+                        radio_sRate]),
+                dbc.Col([
+                        btn_update_sRate])
+                ]) #we're doing this weird placement because otherwise the button strecthes to the size of the radio buttons
 
 
 col1_row6 = dbc.Row([
@@ -80,20 +94,22 @@ col1_row6 = dbc.Row([
 col1_row7 = dbc.Row([
                 btn_trigger],
                 justify = "center")
+col1_row8 = dbc.Row([
+                dbc.Col(html.Div("column2", id = 'outputDiv'), width = 1)
+                ])
 
-column1 =  dbc.Col(html.Div([col1_row1,
-                             col1_row2,
+column1 =  dbc.Col(html.Div([
                              col1_row3,
                              col1_row4,
                              col1_row5,
                              col1_row6,
-                             col1_row7], 
-                        id = 'userInputDiv'), width = 3)
+                             col1_row7,
+                             col1_row8], 
+                             id = 'userInputDiv')
+                    )
 
-column2 =  dbc.Col(html.Div("column2", id = 'outputDiv'), width = 9)
 
 row_1 = html.Div([
             dbc.Row([
-                column1,
-                column2]),
+                column1]),
                 ])
