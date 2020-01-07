@@ -56,7 +56,9 @@ def button1(clicks, CH, mDepth, ch1_label, ch2_label, ch3_label, ch4_label, desc
         sleep(0.3)
         scope_status = scope.trigger_status()
     for i in CH:
+        print("getting data from channel " + str(i))
         scope_data = scope.channel_data_return(int(i))
+        print("length of scope data = " + str(len(scope_data)))
         if int(i) == 1:
             data[ch1_label] = scope_data
         elif int(i) == 2:
