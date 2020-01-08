@@ -16,34 +16,36 @@ channel_checklist = dcc.Checklist(
 channel_checklist_1 = dcc.Checklist(
                 id = 'chkLst_CH1',
                 options = [{'label': 'Channel 1 ', 'value': '1'}],
-                style = {'font-weight':'bold', 'font-size':'200%'}
+                style = {'font-weight':'bold', 'font-size':'300%'},
+                value = ['1']
                 )
 channel_checklist_2 = dcc.Checklist(
                 id = 'chkLst_CH2',
                 options = [{'label': 'Channel 2 ', 'value': '3'}],
-                style = {'font-weight':'bold', 'font-size':'200%'}
+                style = {'font-weight':'bold', 'font-size':'300%'}
                 )
 
 channel_checklist_3 = dcc.Checklist(
                 id = 'chkLst_CH3',
                 options = [{'label': 'Channel 3 ', 'value': '3'}],
-                style = {'font-weight':'bold', 'font-size':'200%'}
+                style = {'font-weight':'bold', 'font-size':'300%'}
                 )
 channel_checklist_4= dcc.Checklist(
                 id = 'chkLst_CH4',
                 options = [{'label': 'Channel 4 ', 'value': '4'}],
-                style = {'font-weight':'bold', 'font-size':'200%'}
+                style = {'font-weight':'bold', 'font-size':'300%'}
                 )
 
 #BUTTONS
-btn_trigger = html.Button('Trigger', id='btn-trig', n_clicks=0, style={'padding':'30px 100px', 'boarder-radius':'10px'})
-btn_update_sRate = html.Button('Update', id='btn-uSrate',n_clicks=0, style={'padding':'10px 20px'})
+btn_trigger = html.Button('Trigger', id='btn-trig', n_clicks=0, style={'padding':'50px 200px', 'boarder-radius':'10px'})
+btn_update_sRate = html.Button('Update', id='btn-uSrate',n_clicks=0, style={'padding':'100px 100px'})
 '''*************************************************************************'''
 
 
 #RADIO ITEMS
 radio_sRate = dcc.RadioItems(
-        id = 'radio_sRate')
+        id = 'radio_sRate',
+        style = {'display':'block','font-weight':'bold', 'font-size':'300%', 'width':'60%'})
 '''*************************************************************************'''
 
 channel_labels = dbc.Col([
@@ -74,20 +76,28 @@ col1_row3 = dbc.Row([
                 justify = "center")
 
 col1_row4 = dbc.Row([
-                html.H3("Sampling Rate")],
+                html.H2("Sampling Rate")],
                 justify = "center")
 
 
 col1_row5 = dbc.Row([
-                dbc.Col([
-                        radio_sRate]),
-                dbc.Col([
-                        btn_update_sRate])
-                ]) #we're doing this weird placement because otherwise the button strecthes to the size of the radio buttons
+                    dbc.Col([
+                        dbc.Row([
+                            btn_update_sRate
+                            ],
+                            justify = 'end'
+                        )]),
+
+                    dbc.Col([
+                        radio_sRate]
+                        )
+                    ],
+                    justify = "center"
+                    ) #we're doing this weird placement because otherwise the button strecthes to the size of the radio buttons
 
 
 col1_row6 = dbc.Row([
-                    dcc.Input(id="desc", type="text", value = "Enter description", style={'width':400})
+                dcc.Input(id="desc", type="text", value = "Enter description", style={'width':700, 'height':300})
                     ],
                     justify = "center")
 
