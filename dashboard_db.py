@@ -35,25 +35,27 @@ def create_desc_table(conn):
             id integer PRIMARY KEY,
             date text NOT NULL,
             desc text NOT NULL,
-            sRate float NOT NULL
+            sRate float NOT NULL,
+            push float,
+            start float,
+            end float
             );"""
         cur = conn.cursor()
         cur.execute(sql_create_desc_table) #no commit needed, this is table structure stuff
     except:
         print("Error")
 
-def add_desc_entry(conn,description, sample_rate):
+def add_desc_entry(conn,description, sample_rate,end_time):
     try:
         #get the date
         now = datetime.today()
         frmt_now = now.strftime("%Y-%m-%d %H:%M:%S") #TODO: convert from UTC to CST
-
         sql_insert_query = """
             INSERT INTO desc
-            (date, desc, sRate)
+            (date, desc, sRate, push, start, end)
             VALUES
-            ("{}","{}",{})
-            """.format(frmt_now,description, sample_rate)
+            ("{}","{}",{},{},{},{})
+            """.format(frmt_now, description, sample_rate, 0, 0, end_time)
         cur = conn.cursor()
         cur.execute(sql_insert_query)
         conn.commit()

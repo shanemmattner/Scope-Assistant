@@ -32,24 +32,24 @@ app.layout = html.Div([
               [Input('btn-trig', 'n_clicks')],
               [State('chkLst_CH1','value'), State('chkLst_CH2','value'), State('chkLst_CH3','value'), State('chkLst_CH4','value'), State('radio_sRate', 'value'), State('channel_1', 'value'), State('channel_2', 'value'), State('channel_3', 'value'), State('channel_4', 'value'), State('desc','value')])
 #start the signal plotter script
-def button1(clicks, CH1, CH2, CH3, CH4, mDepth, ch1_label, ch2_label, ch3_label, ch4_label, description):
+def button1(clicks, CH1, CH2, CH3, CH4, sRate, ch1_label, ch2_label, ch3_label, ch4_label, description):
     buf=[CH1,CH2,CH3,CH4]
     CH=[]
     for i in buf:
         if i:
-            CH.append(i[0]) 
+            CH.append(i[0])
+            print("channel to get: " + str(i[0]))
     #prevent the scope from triggering upon entering application before button is clicked
     #also guard against users trying to get data with no channels selected
-    if (clicks == 0) or (len(CH) == 0) or (str(type(mDepth)) == "<class 'NoneType'>"):
+    if (clicks == 0) or (len(CH) == 0) or (str(type(sRate)) == "<class 'NoneType'>"):
         return
 
     if len(CH) == 1:
-        depth = memDepthImport.iloc[mDepth]['oneChannel']
+        depth = memDepthImport.iloc[sRate]['oneChannel']
     elif len(CH) == 2:
-        depth = memDepthImport.iloc[mDepth]['twoChannels']
+        depth = memDepthImport.iloc[sRate]['twoChannels']
     else:
-        depth = memDepthImport.iloc[mDepth]['threeFourChannels']
-    print("depth: " + str(depth))
+        depth = memDepthImport.iloc[sRate]['threeFourChannels']
     scope=rg.RIGOL_DS1104Z()
     data = pd.DataFrame() #make an empty dataframe where the data will go
     scope.initialize_scope(channel = CH, memDepth = depth) #initialize the scope and channels
@@ -72,13 +72,17 @@ def button1(clicks, CH1, CH2, CH3, CH4, mDepth, ch1_label, ch2_label, ch3_label,
             data[ch3_label] = scope_data
         else:
             data[ch4_label] = scope_data
+        #sometimes the last trace will not have the same amount of data as the first ones
+        # fill the later signal empty data with zeros
+    print("about to generate time axis")
     sample_rate = scope.acquire_srate_get() #get sample rate for calculating x axis
     data['Time'] = np.linspace(0,(len(data)/sample_rate), len(data))# make the time axis
     dbdb.create_table(dbdb.connect(), data)
     #add an entry to the desc table
-    dbdb.add_desc_entry(dbdb.connect(), description, sample_rate) 
+    total_time = len(data)/ sample_rate
+    dbdb.add_desc_entry(dbdb.connect(), description, float(sample_rate), float(total_time)) 
     df_test = dbdb.retrieve_table(dbdb.connect())
-    print(dbdb.list_tables(dbdb.connect()))
+    #print(dbdb.list_tables(dbdb.connect()))
     #return dbf.create_fig(df_test)
    
     return []
@@ -123,4 +127,4 @@ def memDepthOptions(CH1, CH2, CH3, CH4, u_clicks,sRate):
             lst.append(dbf.to_si(i))
         return (dbf.create_options(lst), usr_sel)
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', debug=True)
+    app.run_server(host='0.0.0.0', port=8050, debug=True)

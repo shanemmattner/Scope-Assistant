@@ -33,7 +33,7 @@ class RIGOL_DS1104Z():
         while attempts > 0:
             try:
                 #open the oscilloscope, timeout of 5sec,  
-                self.scope=rm.open_resource(self.scopeName, timeout=5000, chunk_size=1024000)
+                self.scope=rm.open_resource(self.scopeName, timeout=10000, chunk_size=1024000)
                 attempts = 0
             except:
                 print("attempts: " + str(attempts))
@@ -178,22 +178,27 @@ class RIGOL_DS1104Z():
         #get the raw data
         raw = np.array(self.scope.query_ascii_values(':WAV:DATA?', converter='s'))
         #check for data type
-        values = raw[1:].astype(float)
-        values = np.around(values, decimals = decimals)
+        try:
+            values = raw[1:].astype(float)
+            values = np.around(values, decimals = decimals)
+        except:
+            print("error converting to float and rounding")
         return values
    
     def channel_data_return(self, channel):
         self.stop()
         self.wave_source_set(channel)
         memDepth = self.acquire_depth_get()
+        print("Memory Depth: " + str(memDepth))
         queryFormat = self.wave_format_get()
         numQueriesNeeded, maxReadsPerQuery = dbf.calc_query_req(str(queryFormat), memDepth)
         channelData = np.empty([1])
         for i in range(numQueriesNeeded):
             start = (i * maxReadsPerQuery) + 1
             stop = start + maxReadsPerQuery
-            if stop > int(self.acquire_depth_get()):
-                stop = int(self.acquire_depth_get())
+            if stop > int(memDepth):
+                stop = int(memDepth)
             newData = self.single_channel_data(start = start, stop = stop)
             channelData = np.concatenate((channelData,newData), axis = 0)
+
         return channelData

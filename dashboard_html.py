@@ -3,16 +3,6 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import base64
 #CHECKLISTS
-channel_checklist = dcc.Checklist(
-                id = 'chkLst_channels',
-                options=[
-                     {'label': 'Channel 1', 'value': '1'},
-                     {'label': 'Channel 2', 'value': '2'},
-                     {'label': 'Channel 3', 'value': '3'},
-                     {'label': 'Channel 4', 'value': '4'}],
-                value=['1'],
-                labelStyle={'display':'vertical'})
-
 channel_checklist_1 = dcc.Checklist(
                 id = 'chkLst_CH1',
                 options = [{'label': 'Channel 1 ', 'value': '1'}],
@@ -21,7 +11,7 @@ channel_checklist_1 = dcc.Checklist(
                 )
 channel_checklist_2 = dcc.Checklist(
                 id = 'chkLst_CH2',
-                options = [{'label': 'Channel 2 ', 'value': '3'}],
+                options = [{'label': 'Channel 2 ', 'value': '2'}],
                 style = {'font-weight':'bold', 'font-size':'300%'}
                 )
 
