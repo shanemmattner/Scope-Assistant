@@ -127,4 +127,4 @@ def memDepthOptions(CH1, CH2, CH3, CH4, u_clicks,sRate):
             lst.append(dbf.to_si(i))
         return (dbf.create_options(lst), usr_sel)
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8050, debug=True)
+    app.run_server(host='0.0.0.0', port=8050)
