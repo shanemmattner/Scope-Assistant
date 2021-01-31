@@ -18,8 +18,8 @@ import RIGOL_DS1104Z as rg
 chdir("/home/pi/scope_dashboard/")
 system('clear')
 
-memDepthImport = pd.read_csv('memoryDepth.csv')
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+memDepthImport = pd.read_csv('memoryDepth.csv')  #import the memory depth settings of the scope
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] #import CSS style sheet
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.config.suppress_callback_exceptions = True #prevents errors if we reference components before they're defined
@@ -104,6 +104,7 @@ def memDepthOptions(CH1, CH2, CH3, CH4, u_clicks,sRate):
         usr_sel = sRate
     scope = rg.RIGOL_DS1104Z()
     scope.get_USB_port()
+
     time_scale = float(scope.time_scale_get())
     divisions = 12 #there are 12 divisions on the Rigol DS1104Z screen
     total_time = time_scale * divisions
@@ -126,5 +127,6 @@ def memDepthOptions(CH1, CH2, CH3, CH4, u_clicks,sRate):
         for i in srate:
             lst.append(dbf.to_si(i))
         return (dbf.create_options(lst), usr_sel)
+        
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8050)

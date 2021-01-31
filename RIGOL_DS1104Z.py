@@ -22,17 +22,19 @@ class RIGOL_DS1104Z():
         self.scope = scope
         
     def get_USB_port(self):
-        #instantiate ResourceManager from pyVISA
-        rm = vs.ResourceManager('@py')
-        #return a list of resources to an array
-        available=rm.list_resources()
-        print(available)
-        #usually the oscilloscope will be the 0th element of the available array
-        self.scopeName=available[0]
+
         #we try 10 attempts at opening the resource.  
         attempts = 10
         while attempts > 0:
             try:
+                #instantiate ResourceManager from pyVISA
+                rm = vs.ResourceManager('@py')
+                #return a list of resources to an array
+                available=rm.list_resources()
+                #usually the oscilloscope will be the 0th element of the available array
+                self.scopeName=available[1]
+                # self.scopeName = "/dev/ttyAMA0::INSTR"
+                print(self.scopeName)
                 #open the oscilloscope, timeout of 5sec,  
                 self.scope=rm.open_resource(self.scopeName, timeout=10000, chunk_size=1024000)
                 attempts = 0
@@ -54,13 +56,13 @@ class RIGOL_DS1104Z():
         #very high, the scope will limit our memory depth because it thinks we're using 
         # more than 1 channel
         self.initialize_channel(channel)
-       #to adjust the # of points recorded (depth) we need to have the scope in
+        #to adjust the # of points recorded (depth) we need to have the scope in
         #   Run mode and then change the depth
         self.run()
-       #set the memory depth
+        #set the memory depth
         self.acquire_depth_set(memDepth)
         self.stop()
-       #set the termination
+        #set the termination
         self.scope.read_termination='\n'
 
 
@@ -141,6 +143,9 @@ class RIGOL_DS1104Z():
 
     def trigger_status(self):
         return self.scope.query(':TRIG:STAT?')
+
+
+
     '''DISPLAY COMMANDS'''
     #get the channel scale
     def display_data_get(self):
@@ -179,12 +184,14 @@ class RIGOL_DS1104Z():
         self.wave_stop_point(stop)
         #get the raw data
         raw = np.array(self.scope.query_ascii_values(':WAV:DATA?', converter='s'))
+        
         #check for data type
         try:
             values = raw[1:].astype(float)
+            print(values)
             values = np.around(values, decimals = decimals)
-        except:
-            print("error converting to float and rounding")
+        except ValueError as e:
+            print("got it :-) ", e)
         return values
    
     def channel_data_return(self, channel):
@@ -202,5 +209,4 @@ class RIGOL_DS1104Z():
                 stop = int(memDepth)
             newData = self.single_channel_data(start = start, stop = stop)
             channelData = np.concatenate((channelData,newData), axis = 0)
-
         return channelData
