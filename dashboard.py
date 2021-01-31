@@ -8,14 +8,14 @@ from os import chdir, system
 import pandas as pd
 import sqlite3
 from time import sleep
-import visa
+import pyvisa as visa
 #user created imports
 import dashboard_db as dbdb
 import dashboard_functions as dbf
 import dashboard_html as dbh
 import RIGOL_DS1104Z as rg
 
-chdir("/home/pi/dashboard/Scope-Assistant")
+chdir("/home/pi/scope_dashboard/")
 system('clear')
 
 memDepthImport = pd.read_csv('memoryDepth.csv')

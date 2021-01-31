@@ -26,8 +26,9 @@ class RIGOL_DS1104Z():
         rm = vs.ResourceManager('@py')
         #return a list of resources to an array
         available=rm.list_resources()
+        print(available)
         #usually the oscilloscope will be the 0th element of the available array
-        self.scopeName=available[1]
+        self.scopeName=available[0]
         #we try 10 attempts at opening the resource.  
         attempts = 10
         while attempts > 0:
@@ -35,6 +36,7 @@ class RIGOL_DS1104Z():
                 #open the oscilloscope, timeout of 5sec,  
                 self.scope=rm.open_resource(self.scopeName, timeout=10000, chunk_size=1024000)
                 attempts = 0
+                print('Scope initialized')
             except:
                 print("attempts: " + str(attempts))
                 attempts = attempts - 1
